@@ -152,6 +152,19 @@ func (p pinList) toString() string {
 	return text
 }
 
+func (p pinList) toMapAPI() (string,error) {
+	if len(p) < 2 {
+		return "", errors.New("toMapAPI require two pins")
+	}
+	text := "https://www.google.co.in/maps/dir"
+	for _, pin := range p {
+		//text = fmt.Sprintf("%s/%s", text, url.QueryEscape(pin.Location.Address) )
+		text = fmt.Sprintf("%s/%s", text, strconv.FormatFloat(pin.Location.Lat, 'f', 6, 64) + "," + strconv.FormatFloat(pin.Location.Long, 'f', 6, 64))
+	}
+	return text, nil
+
+}
+
 // generate the individual pins for a vehicle
 
 func generatePins(v vehicle, requestors ...requestor) []pin {

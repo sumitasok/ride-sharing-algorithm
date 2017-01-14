@@ -13,6 +13,7 @@ type DeviationResult struct {
 	Deviation        time.Duration
 	VehicleDeviation time.Duration
 	ExpectedLastTime time.Time
+	DirectDropTime time.Time
 }
 
 func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time, out chan DeviationResult) ( []pinList, time.Time, time.Duration ){
@@ -94,6 +95,7 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 		bestRouteDeviation,
 		vehicleDeviation,
 		stepTime,
+		reqBestDropTime,
 	}
 
 	return routes_calculated, reqBestDropTime, vehicleDeviation

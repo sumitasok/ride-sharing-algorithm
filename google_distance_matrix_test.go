@@ -7,6 +7,7 @@ import (
 	"time"
 	"github.com/kr/pretty"
 	"fmt"
+	"github.com/skratchdot/open-golang/open"
 )
 
 /*func TestGDistanceMatrix(t *testing.T) {
@@ -326,16 +327,16 @@ func TestMultiVehicle(t *testing.T) {
 
 	//car1curr to car1rider1drop == 9min
 
-	car1CurrLoc, _ := NewLocationFromAddress("13.025190,77.636776")	// CDG Platinum building, 5th Cross Rd, HRBR Layout 3rd Block, HRBR Layout, Kalyan Nagar, Bengaluru, Karnataka 560043
+	car1CurrLoc := NewLocationFromLatLong(13.025190,77.636776)	// CDG Platinum building, 5th Cross Rd, HRBR Layout 3rd Block, HRBR Layout, Kalyan Nagar, Bengaluru, Karnataka 560043
 
-	car1Rider1Drop, errr := NewLocationFromAddress("13.004701,77.635832") // 6, Balakrishnappa Rd, Ramaswamipalya, Lingarajapuram, Bengaluru, Karnataka 560084
-	fmt.Println("ERRRRRR::",errr)
+	car1Rider1Drop := NewLocationFromLatLong(13.004701,77.635832) // 6, Balakrishnappa Rd, Ramaswamipalya, Lingarajapuram, Bengaluru, Karnataka 560084
 
-	Rider2PickUP, _ := NewLocationFromAddress("13.010388,77.631283") //25, Sadashiva Temple Rd, KSFC Layout, Lingarajapuram, Bengaluru, Karnataka 560084
-	Rider2Drop, _ := NewLocationFromAddress("13.001607,77.624073") //Prestige Milton Garden Apartment, Milton St, D Costa Layout, Cooke Town, Bengaluru, Karnataka 560005
+	Rider2PickUP := NewLocationFromLatLong(13.010388,77.631283) //25, Sadashiva Temple Rd, KSFC Layout, Lingarajapuram, Bengaluru, Karnataka 560084
+	Rider2Drop := NewLocationFromLatLong(13.001607,77.624073) //Prestige Milton Garden Apartment, Milton St, D Costa Layout, Cooke Town, Bengaluru, Karnataka 560005
 
-	car2CurrLoc, _ := NewLocationFromAddress("13.021925,77.634051")  //Cafe Thulp, No.21/22, 2nd Cross Road, CPR Layout, Kammanahalli, Bengaluru, Karnataka 560084
-	car2Rider1Drop, _ := NewLocationFromAddress("13.011290,77.663083") // Service Rd, Govindpura, Dooravani Nagar, Bengaluru, Karnataka 560016
+	car2CurrLoc := NewLocationFromLatLong(13.043405,77.609656)  //Cafe Thulp, No.21/22, 2nd Cross Road, CPR Layout, Kammanahalli, Bengaluru, Karnataka 560084
+	car2Rider1Drop := NewLocationFromLatLong(13.011290,77.663083) // Service Rd, Govindpura, Dooravani Nagar, Bengaluru, Karnataka 560016
+
 
 	vehicle1 := vehicle{
 		ID: "khrm1",
@@ -366,7 +367,7 @@ func TestMultiVehicle(t *testing.T) {
 	vehicle2 := vehicle{
 		ID: "khrm2",
 		Capacity: 4,
-		Location: *car1CurrLoc,
+		Location: *car2CurrLoc,
 		Riders: map[string]*requestor{
 			"rider-1": &requestor{
 				Identifier: "rider-1",
@@ -406,5 +407,10 @@ func TestMultiVehicle(t *testing.T) {
 	pretty.Println("devResult::::", ranks, "err:::??", err)
 
 	assert.Equal("khrm1",ranks[0].V.ID)
+
+	for _, rank := range ranks {
+		path, _ := rank.Route.toMapAPI()
+		open.Run(path)
+	}
 
 }
