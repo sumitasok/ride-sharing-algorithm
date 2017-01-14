@@ -140,6 +140,7 @@ func AddRequest() error {
 	if err != nil {
 		return err
 	}
+	
 	selRank, err := AssignVehicles(*req, vs)
 	if err != nil {
 		return err

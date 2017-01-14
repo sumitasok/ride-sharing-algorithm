@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrRiderAlreadyExist = errors.New("Rider already exist")
+	ErrRiderAlreadyExist    = errors.New("Rider already exist")
 	ErrRiderAlreadyDropped  = errors.New("Rider Already dropped")
 	ErrActionNotPossible    = errors.New("Action not possible")
 	ErrRiderNotFound        = errors.New("Rider with the ID not found")
@@ -15,20 +15,20 @@ var (
 
 func NewVehicle(capacity int64, location location) vehicle {
 	return vehicle{
-		Capacity: capacity,
-		Location: location,
+		Capacity:   capacity,
+		Location:   location,
 		Requestors: map[string]*requestor{},
-		Riders: map[string]*requestor{},
+		Riders:     map[string]*requestor{},
 	}
 }
 
 func NewVehicleWithName(name string, capacity int64, location location) vehicle {
 	return vehicle{
-		ID: name,
-		Capacity: capacity,
-		Location: location,
+		ID:         name,
+		Capacity:   capacity,
+		Location:   location,
 		Requestors: map[string]*requestor{},
-		Riders: map[string]*requestor{},
+		Riders:     map[string]*requestor{},
 	}
 }
 
@@ -38,19 +38,19 @@ type state struct {
 }
 
 type vehicle struct {
-	State                state
-	Capacity             int64
-	Location             location
-	ID                   string
+	State    state
+	Capacity int64
+	Location location
+	ID       string
 	// requestors always sorted by first one to drop.
-	Requestors           map[string]*requestor
-	Riders               map[string]*requestor
-		// req
+	Requestors map[string]*requestor
+	Riders     map[string]*requestor
+	// req
 	ExpectedLastDropTime time.Time
 	// Path on which vehicle is currently travelling
-	CurrentRoute         routes
+	CurrentRoute routes
 	// coputed values
-	AllRoutes            []routes
+	AllRoutes []routes
 }
 
 func (v *vehicle) addRequestor(r requestor) error {
@@ -65,6 +65,9 @@ func (v *vehicle) addRequestor(r requestor) error {
 func (v vehicle) occupancyStatus() int64 {
 	count := int64(0)
 	for _, r := range v.Riders {
+		if r.State == dropped {
+			continue
+		}
 		count += r.Quantity
 	}
 
