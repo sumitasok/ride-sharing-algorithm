@@ -1,0 +1,5 @@
+package ridefair
+
+func Store() {
+	
+}
