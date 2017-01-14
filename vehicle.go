@@ -2,6 +2,7 @@ package ride
 
 import (
 	"errors"
+	"time"
 )
 
 var (
@@ -44,6 +45,12 @@ type vehicle struct {
 	// requestors always sorted by first one to drop.
 	Requestors           map[string]*requestor
 	Riders               map[string]*requestor
+		// req
+	ExpectedLastDropTime time.Time
+	// Path on which vehicle is currently travelling
+	CurrentRoute         routes
+	// coputed values
+	AllRoutes            []routes
 }
 
 func (v *vehicle) addRequestor(r requestor) error {

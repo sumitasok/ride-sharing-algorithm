@@ -34,4 +34,13 @@ type requestor struct {
 	DropLocation     location
 	ExpectedDropTime time.Time
 	RequestTime      time.Time
+				       // seconds
+	ActualTravelTime int64 // directTime
+	WaitTime         time.Duration
+	TotalTime        time.Duration
+
+	DirectDropTime   time.Time
+	ElapsedTime      time.Duration
+	RerouteTime      time.Time
+	DeviationTime    time.Duration
 }

@@ -105,6 +105,30 @@ func (r redisStore) InsertVehicles(vs... vehicle) (string,error)  {
 	return r.client.MSet(vStr...).Result()
 }
 
+func (r redisStore) PickupRider(vehicle_id, rider_id string) error {
+	vehicles, err := redisST.FetchVehicleDetail(vehicle_id)
+	if err != nil {
+		return err
+	}
+
+	if len(vehicles) == 0 {
+		return errors.New("Vehicle not found")
+	}
+
+	v := vehicles[0]
+	err = v.Pickup(rider_id)
+	if err != nil {
+		return err
+	}
+
+	_, err = redisST.InsertVehicles(v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r redisStore) RemoveVehicle(key, name string) (int64, error) {
 	intCmd := r.client.ZRem(key, name)
 	return intCmd.Result()
