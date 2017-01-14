@@ -1,13 +1,13 @@
 package ride
 
-import(
+import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"strconv"
-	"errors"
-	"log"
+	"strings"
+
 	"github.com/kr/pretty"
 	"github.com/skratchdot/open-golang/open"
 )
@@ -43,7 +43,6 @@ func AddVeh() (*vehicle, error) {
 	}
 
 	v := NewVehicleWithName(name, capacity, *loc)
-
 
 	redisST.AddVehicle("blr", name, v.Location.Long, v.Location.Lat)
 
@@ -99,9 +98,7 @@ func AddRequest() error {
 	fmt.Print("Enter Requestor quantity: ")
 	text, _ = reader.ReadString('\n')
 
-
 	quantity, _ := strconv.ParseInt(chomp(text), 10, 64)
-
 
 	reader = bufio.NewReader(os.Stdin)
 
@@ -135,21 +132,14 @@ func AddRequest() error {
 		println(err.Error())
 		return err
 	}
-	ids, err := redisST.GetIDsByRadius(*pickLoc)
-	if err != nil {
-		log.Println("Err Assign vehicle", err)
-		//return DeviationResult{}, err
-		return err
-	}
-	req := NewRequestor(name,  quantity, *pickLoc, *dropLoc)
-	//TBD from radius
-	vs, err := redisST.FetchVehicleDetail(ids...)
-	if err != nil {
-		log.Println("Err Assign vehicle", err)
-		//return DeviationResult{}, err
-		return err
-	}
 
+	req := NewRequestor(name, req.Quantity, *pickLoc, *dropLoc)
+
+	vs, err := redisST.GetValidVehicleForRequestors(req)
+
+	if err := nil {
+		return err
+	}
 	selRank, err := AssignVehicles(*req, vs)
 	if err != nil {
 		return err
