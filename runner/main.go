@@ -4,11 +4,8 @@ import(
 	"bufio"
 	"fmt"
 	"os"
-	ride "bitbucket.org/sumitasok/ride-fair"
+	ride "bitbucket.org/z_team_gojek/ride-fair"
 	"strings"
-)
-
-var(
 )
 
 func chomp(command string) string {
@@ -23,6 +20,7 @@ func main() {
 
 		switch(chomp(text)) {
 		case "ADD_VEH":
+			ride.AddVeh()
 		case "RM_VEH":
 		case "UPDT_VEH":
 		case "REQ_RIDE":
@@ -33,9 +31,4 @@ func main() {
 			fmt.Println(text)
 		}
     }
-	ridefair.Store()
-}
-
-func addVeh() (*ride.vehicle, error) {
-	
 }

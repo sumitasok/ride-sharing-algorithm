@@ -8,6 +8,10 @@ import (
 	"errors"
 )
 
+var(
+	redisST = NewRedisStore("localhost:6379", "")
+)
+
 func Store() {
 
 }
