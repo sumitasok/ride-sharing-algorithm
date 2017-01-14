@@ -75,3 +75,20 @@ func TestInsertVehicle(t *testing.T) {
 	assert.NoError(err)
 
 }
+
+func TestVehicleGetByIdsRadius(t *testing.T) {
+	assert := assert.New(t)
+
+	car1CurrLoc := NewLocationFromLatLong(13.025190,77.636776)	// CDG Platinum building, 5th Cross Rd, HRBR Layout 3rd Block, HRBR Layout, Kalyan Nagar, Bengaluru, Karnataka 560043
+	car2CurrLoc := NewLocationFromLatLong(13.043405,77.609656)      //Cafe Thulp, No.21/22, 2nd Cross Road, CPR Layout, Kammanahalli, Bengaluru, Karnataka 560084
+
+	cmd := NewRedisStore("localhost:6379", "")
+
+	cmd.AddVehicle("blr", "khrm1", car1CurrLoc.Long, car1CurrLoc.Lat)
+	cmd.AddVehicle("blr", "khrm2", car2CurrLoc.Long, car2CurrLoc.Lat)
+	reqLoc := NewLocationFromLatLong(13.025190,77.636776)
+	vs, err := cmd.GetIDsByRadius(*reqLoc)
+	assert.NoError(err)
+	assert.NotEmpty(vs)
+	assert.True(true)
+}

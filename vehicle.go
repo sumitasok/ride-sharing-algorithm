@@ -188,3 +188,4 @@ func (v vehicle) GetRiderReqPins() pinList {
 
 	return pins
 }
+

@@ -10,6 +10,7 @@ import (
 
 var(
 	redisST = NewRedisStore("localhost:6379", "")
+	REGION = "blr"
 )
 
 func Store() {
@@ -132,4 +133,17 @@ func (r redisStore) PickupRider(vehicle_id, rider_id string) error {
 func (r redisStore) RemoveVehicle(key, name string) (int64, error) {
 	intCmd := r.client.ZRem(key, name)
 	return intCmd.Result()
+}
+
+func (r redisStore) GetIDsByRadius(loc location) ([]string, error) {
+	ids := []string{}
+	locations, err := r.FetchAllByRadius(REGION, loc.Long, loc.Lat, RADIUS, KM)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, location := range locations {
+		ids = append(ids, location.Name)
+	}
+	return ids, nil
 }

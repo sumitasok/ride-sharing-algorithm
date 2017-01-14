@@ -124,3 +124,4 @@ func TestVehicleRiderStateChange(t *testing.T) {
 
 	assert.True(true)
 }
+

@@ -3,9 +3,8 @@ package ride
 import (
 	"time"
 	"sort"
-	// "github.com/kr/pretty"
-	"fmt"
 	"errors"
+	"log"
 )
 
 const (
@@ -61,18 +60,17 @@ func AssignVehicles(req requestor) (DeviationResult,error) {
 	redisStore :=  NewRedisStore("localhost:6379", "")
 
 
-	vehicleNames := []string{}
-	locations, _ := redisStore.FetchAllByRadius("blr", reqPickUpPin.Location.Long, reqPickUpPin.Location.Lat, RADIUS, KM)
-
-	for _, location := range locations {
-		vehicleNames = append(vehicleNames, location.Name)
-	}
-
-	fmt.Println("Vehiclesssss:::", vehicleNames)
-	//TBD from radius
-	vs, err := redisStore.FetchVehicleDetail(vehicleNames...)
+	ids, err := redisStore.GetIDsByRadius(reqPickUpPin.Location)
 	if err != nil {
-		fmt.Println("Err Assign vehicle", err)
+		log.Println("Err Assign vehicle", err)
+		return DeviationResult{}, err
+	}
+	log.Println("Vehiclesssss:::", ids)
+
+	//TBD from radius
+	vs, err := redisStore.FetchVehicleDetail(ids...)
+	if err != nil {
+		log.Println("Err Assign vehicle", err)
 		return DeviationResult{}, err
 	}
 
