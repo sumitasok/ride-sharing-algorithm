@@ -4,13 +4,12 @@ import (
 	// "fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestPinLatLongString(t *testing.T) {
 	assert := assert.New(t)
 
-	t_requestor := *NewRequestor("rider-1", 1, time.Now(),
+	t_requestor := *NewRequestor("rider-1", 1,
 		*NewLocationFromLatLong(12.975928, 77.638986),
 		*NewLocationFromLatLong(12.959969, 77.641068))
 

@@ -8,7 +8,7 @@ import (
 
 const apiKey = "AIzaSyCyIeVJaMJIL72mmuH8w20HNpypp-klD_4"
 
-func NewLocationFromLatLong(lat, long float64) *location {
+func NewLocationFromLatLong(lat, long float64, address ...string) *location {
 	return &location{Long: long, Lat: lat}
 }
 

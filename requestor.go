@@ -13,12 +13,11 @@ const (
 	requestCancelled travelState = "REQUEST_CANCELLED"
 )
 
-func NewRequestor(id string, quantity int64, pickupTime time.Time, pickupLocation, dropLocation location) *requestor {
+func NewRequestor(id string, quantity int64, pickupLocation, dropLocation location) *requestor {
 	return &requestor{
 		Identifier:     id,
 		State:          rideRequested,
 		Quantity:       quantity,
-		PickupTime:     pickupTime,
 		PickupLocation: pickupLocation,
 		DropLocation:   dropLocation,
 		RequestTime:    time.Now(),

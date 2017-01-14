@@ -6,8 +6,10 @@ import(
 	"os"
 	"strings"
 	"strconv"
-	"github.com/kr/pretty"
 	"errors"
+	"log"
+	"github.com/kr/pretty"
+	"github.com/skratchdot/open-golang/open"
 )
 
 func AddVeh() (*vehicle, error) {
@@ -45,8 +47,10 @@ func AddVeh() (*vehicle, error) {
 
 	redisST.AddVehicle("blr", name, v.Location.Long, v.Location.Lat)
 
-	s, e := redisST.InsertVehicles(v)
-	pretty.Print(s, e)
+	_, err = redisST.InsertVehicles(v)
+	if err != nil {
+		return nil, err
+	}
 
 	return &v, nil
 }
@@ -82,6 +86,82 @@ func PickupRider() error {
 		return err
 	}
 
+	return nil
+}
+
+func AddRequest() error {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter Requestor name: ")
+	text, _ := reader.ReadString('\n')
+	name := chomp(text)
+
+	reader = bufio.NewReader(os.Stdin)
+	fmt.Print("Enter Requestor quantity: ")
+	text, _ = reader.ReadString('\n')
+
+
+	quantity, _ := strconv.ParseInt(chomp(text), 10, 64)
+
+
+	reader = bufio.NewReader(os.Stdin)
+
+	var pickLoc, dropLoc *location
+	var err error
+	for {
+		fmt.Print("Enter Requestor pickup location: ")
+
+		text, _ = reader.ReadString('\n')
+
+		address := chomp(text)
+		pickLoc, err = NewLocationFromAddress(address)
+		if err == nil {
+			break
+		}
+		println(err.Error())
+
+	}
+	for {
+
+		fmt.Print("Enter Requestor drop location: ")
+		text, _ = reader.ReadString('\n')
+
+		address := chomp(text)
+
+		dropLoc, err = NewLocationFromAddress(address)
+
+		if err == nil {
+			break
+		}
+		println(err.Error())
+		return err
+	}
+	ids, err := redisST.GetIDsByRadius(*pickLoc)
+	if err != nil {
+		log.Println("Err Assign vehicle", err)
+		//return DeviationResult{}, err
+		return err
+	}
+	req := NewRequestor(name,  quantity, *pickLoc, *dropLoc)
+	//TBD from radius
+	vs, err := redisST.FetchVehicleDetail(ids...)
+	if err != nil {
+		log.Println("Err Assign vehicle", err)
+		//return DeviationResult{}, err
+		return err
+	}
+
+	selRank, err := AssignVehicles(*req, vs)
+	if err != nil {
+		return err
+	}
+	pretty.Println(selRank)
+	_, err = redisST.InsertVehicles(selRank.V)
+	if err != nil {
+		return err
+	}
+	url, _ := selRank.Route.toMapAPI()
+
+	open.Run(url)
 	return nil
 }
 

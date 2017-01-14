@@ -4,7 +4,6 @@ import (
 	"time"
 	"sort"
 	"errors"
-	"log"
 )
 
 const (
@@ -54,25 +53,10 @@ func GetVehiclesRanking(vs []vehicle, reqPickUpPin, reqDropPin pin) Ranking {
 	return ranking
 }
 
-func AssignVehicles(req requestor) (DeviationResult,error) {
+func AssignVehicles(req requestor, vs []vehicle) (DeviationResult,error) {
 	reqPickUpPin :=  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
 	reqDropPin :=  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
-	redisStore :=  NewRedisStore("localhost:6379", "")
 
-
-	ids, err := redisStore.GetIDsByRadius(reqPickUpPin.Location)
-	if err != nil {
-		log.Println("Err Assign vehicle", err)
-		return DeviationResult{}, err
-	}
-	log.Println("Vehiclesssss:::", ids)
-
-	//TBD from radius
-	vs, err := redisStore.FetchVehicleDetail(ids...)
-	if err != nil {
-		log.Println("Err Assign vehicle", err)
-		return DeviationResult{}, err
-	}
 
 	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
 
@@ -103,7 +87,6 @@ func AssignVehicles(req requestor) (DeviationResult,error) {
 	req.State = rideRequested
 	req.DirectDropTime = selRank.DirectDropTime
 	selRank.V.Riders[req.Identifier] = &req
-	redisStore.InsertVehicles(selRank.V)
 	return selRank, nil
 }
 
