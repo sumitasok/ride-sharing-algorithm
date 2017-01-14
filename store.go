@@ -104,3 +104,8 @@ func (r redisStore) InsertVehicles(vs... vehicle) (string,error)  {
 
 	return r.client.MSet(vStr...).Result()
 }
+
+func (r redisStore) RemoveVehicle(key, name string) (int64, error) {
+	intCmd := r.client.ZRem(key, name)
+	return intCmd.Result()
+}

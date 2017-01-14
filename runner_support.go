@@ -50,6 +50,15 @@ func AddVeh() (*vehicle, error) {
 	return &v, nil
 }
 
+func RemoveVeh() (int64, error) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter Vehicle name: ")
+	text, _ := reader.ReadString('\n')
+	name := chomp(text)
+
+	return redisST.RemoveVehicle("blr", name)
+}
+
 func chomp(command string) string {
 	return strings.Trim(command, "\n")
 }

@@ -22,6 +22,7 @@ func main() {
 		case "ADD_VEH":
 			ride.AddVeh()
 		case "RM_VEH":
+			ride.RemoveVeh()
 		case "UPDT_VEH":
 		case "REQ_RIDE":
 		case "CNCL_RIDE":
