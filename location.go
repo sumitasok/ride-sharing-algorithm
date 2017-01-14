@@ -6,7 +6,10 @@ import (
 	"context"
 )
 
-const apiKey = "AIzaSyCyIeVJaMJIL72mmuH8w20HNpypp-klD_4"
+const (
+	//apiKeyOld = "AIzaSyCyIeVJaMJIL72mmuH8w20HNpypp-klD_4"
+	apiKey = "AIzaSyBlZ2uYfYw7t44rK1eby50C7G6OLbURAd8"
+)
 
 func NewLocationFromLatLong(lat, long float64, address ...string) *location {
 	return &location{Long: long, Lat: lat}

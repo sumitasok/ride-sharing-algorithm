@@ -5,6 +5,7 @@ import (
 	"time"
 	"math"
 	"github.com/kr/pretty"
+//	"github.com/skratchdot/open-golang/open"
 )
 
 type DeviationResult struct {
@@ -18,7 +19,7 @@ type DeviationResult struct {
 
 func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time, out chan DeviationResult) ( []pinList, time.Time, time.Duration ){
 
-	riderPins := v.GetRiderReqPins()
+	riderPins := v.GetRiderPins()
 	pins := pinList{}
 
 	vehiclePin := NewPinFromVehicle(v)
@@ -39,11 +40,13 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 	// from vehiclePinMatrix, calculating the direct time to pick up the upcoming rider
 	reqPickUpTime := now.Add(vehiclePinMatrix.Distance[reqPickUpPin.latLongString()].Time)
 
+	fmt.Println("reqPickUpTime:::",reqPickUpTime)
+
 	// direct time from upcoming riders pickup to his drop
 	reqBestDropTime := reqPickUpTime.Add(requestPickUpPinMatrix.Distance[reqDropPin.latLongString()].Time)
 
 	// requestorTravel time if directly from pickup to drop
-	reqBestTravelTime := reqBestDropTime.Sub(reqPickUpTime)
+	//reqBestTravelTime := reqBestDropTime.Sub(reqPickUpTime)
 
 	// adding reqDropTime to the upcoming rider's pickup pin
 	reqPickUpPin.Rider.DirectDropTime = reqBestDropTime
@@ -56,7 +59,6 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 	routes_calculated := []pinList{}
 
 	for combination := range generateCombinations(riderPins, riderPins.count()) {
-		fmt.Println(combination.toString()) // This is instead of process(combination)
 		routes_calculated = append(routes_calculated, processEachPinWithMatrix(*vehiclePin, combination, pinsWithMetrics))
 	}
 
@@ -70,24 +72,39 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 		stepTime = now
 		for _, route := range pins {
 			stepTime = stepTime.Add(route.TimeToCover)
+			fmt.Println("stepTime",stepTime, "route.State",route.RextState)
 			if route.RextState == drop {
 				// Deviation for driver who is going to be dropped at this step
 				dev := stepTime.Sub(route.Rider.DirectDropTime)
+				/*
+				if dev < 0 {
+					continue
+				}
+				*/
 				routeDeviation += dev
+				fmt.Println("Rider", route.Rider.Identifier,"route.Rider.DirectDropTime",route.Rider.DirectDropTime,"dev",dev, "routeDeviation", routeDeviation)
+
 			}
+
 		}
-		//pretty.Println("Route No :: ", pinID, "Route::", pins, "Deviation::", routeDeviation.Minutes())
+		fmt.Println()
+
+		fmt.Println("Now",now,"STEP TIME:::", stepTime,"VEHICLEID::", v.ID,"Route No :: ", pinID, "PINTOSTRING", pins.toString(),"Deviation::", routeDeviation.Minutes())
+		pretty.Println()
 
 		if routeDeviation < bestRouteDeviation {
 			bestRouteDeviation = routeDeviation
 			bestRoute = pins
 			bestRouteIndex = pinID
 			vehicleDeviation = stepTime.Sub(v.ExpectedLastDropTime)
-			fmt.Println("stepTime",stepTime,"deltaDeviation", vehicleDeviation,"reqBestDropTime",reqBestDropTime,"v.expectedLastDropTime",v.ExpectedLastDropTime,"bestRouteDeviation",bestRouteDeviation,"reqBestTravelTime",reqBestTravelTime)
+			/*u, _ := pins.toMapAPI()
+			open.Run(u)*/
+
+			//fmt.Println("stepTime",stepTime,"deltaDeviation", vehicleDeviation,"reqBestDropTime",reqBestDropTime,"v.expectedLastDropTime",v.ExpectedLastDropTime,"bestRouteDeviation",bestRouteDeviation,"reqBestTravelTime",reqBestTravelTime)
 		}
 	}
 
-	pretty.Println("Best route index", bestRouteIndex, "Deviation::: ", bestRouteDeviation.Minutes(),"Delta Deviation:: ", vehicleDeviation.Minutes())
+	pretty.Println("Best route index", bestRouteIndex, "Deviation::: ", bestRouteDeviation.Minutes(),"Delta Deviation:: ", vehicleDeviation.Minutes(), "BestRoute",bestRoute.toString(),"VEHICLEID::", v.ID)
 
 	out <- DeviationResult{
 		v,

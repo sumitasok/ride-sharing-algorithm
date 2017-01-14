@@ -175,17 +175,22 @@ func (v *vehicle) setStateForRider(rider_id string, stateRequested travelState) 
 	return nil
 }
 
-func (v vehicle) GetRiderReqPins() pinList {
+func (v vehicle) GetRiderPins() pinList {
 	pins := pinList{}
-	for _, r := range v.Riders {
-		pins = append(pins, *NewPinFromRequestor(*r, drop))
+	for _, rider := range v.Riders {
+		if rider.State == pickedUp {
+			pins = append(pins, *NewPinFromRequestor(*rider, drop))
+		} else if rider.State == rideRequested {
+			pins = append(pins, *NewPinFromRequestor(*rider, pickup))
+			pins = append(pins, *NewPinFromRequestor(*rider, drop))
+		}
+
 	}
 
-	for _, r := range v.Requestors {
+	/*for _, r := range v.Requestors {
 		pins = append(pins, *NewPinFromRequestor(*r, pickup))
 		pins = append(pins, *NewPinFromRequestor(*r, drop))
-	}
+	}*/
 
 	return pins
 }
-
