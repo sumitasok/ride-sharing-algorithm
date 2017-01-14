@@ -6,6 +6,10 @@ import (
 
 var (
 	ErrRiderAlreadyExist = errors.New("Rider already exist")
+	ErrRiderAlreadyDropped  = errors.New("Rider Already dropped")
+	ErrActionNotPossible    = errors.New("Action not possible")
+	ErrRiderNotFound        = errors.New("Rider with the ID not found")
+	ErrRiderAlreadyPickedUp = errors.New("Rider already picked up")
 )
 
 func NewVehicle(capacity int64, location location) vehicle {
@@ -66,4 +70,114 @@ func (v vehicle) occupancyStatus() int64 {
 
 func (v vehicle) remainingOccupancy() int64 {
 	return v.Capacity - v.occupancyStatus()
+}
+
+func (v *vehicle) Drop(rider_id string) error {
+	if v.Requestors == nil {
+		v.Requestors = map[string]*requestor{}
+	}
+
+	found := false
+
+	if rider, ok := v.Riders[rider_id]; ok {
+		if rider.State == pickedUp {
+			// set the state as dropped
+			rider.State = dropped
+			v.Requestors[rider_id] = rider
+
+			delete(v.Riders, rider_id)
+			found = true
+		} else if rider.State == rideRequested {
+			// remove the user from the pickup list
+			// Cancel the ride.
+			rider.State = requestCancelled
+			v.Requestors[rider_id] = rider
+
+			delete(v.Riders, rider_id)
+			found = true
+		} else if rider.State == dropped {
+			// rider is removed if dropped, so this condition shouldnot happen
+			return ErrRiderAlreadyDropped
+		} else {
+			return ErrActionNotPossible
+		}
+	}
+
+	if found {
+		// if the user is found and actioned, update the vehicle details
+		return nil
+	}
+
+	return ErrRiderNotFound
+}
+
+func (v *vehicle) Pickup(rider_id string) error {
+	if v.Requestors == nil {
+		v.Requestors = map[string]*requestor{}
+	}
+
+	found := false
+
+	if rider, ok := v.Riders[rider_id]; ok {
+		if rider.State == pickedUp {
+			return ErrRiderAlreadyPickedUp
+		} else if rider.State == rideRequested {
+			// remove the user from the pickup list
+			// Cancel the ride.
+			rider.State = pickedUp
+			found = true
+		} else if rider.State == dropped {
+			// rider is removed if dropped, so this condition shouldnot happen
+			return ErrRiderAlreadyDropped
+		} else {
+			return ErrActionNotPossible
+		}
+	}
+
+	if found {
+		return nil
+	}
+
+	return ErrRiderNotFound
+}
+
+func (v *vehicle) setStateForRider(rider_id string, stateRequested travelState) error {
+	if rider, ok := v.Riders[rider_id]; ok {
+		if rider.State == rideRequested {
+			if stateRequested == pickedUp {
+				rider.State = pickedUp
+				return nil
+			} else if stateRequested == rideRequested {
+				return ErrActionNotPossible
+			} else if stateRequested == dropped {
+				rider.State = requestCancelled
+				return nil
+			}
+			return nil
+		} else if rider.State == pickedUp {
+			return nil
+		} else if rider.State == dropped {
+			return nil
+		} else if rider.State == requestCancelled {
+			return nil
+		} else {
+			return ErrActionNotPossible
+		}
+	}
+
+	return nil
+}
+
+func (v vehicle) GetRiderReqPins() pinList {
+	pins := pinList{}
+	for _, r := range v.Riders {
+		pins = append(pins, *NewPinFromRequestor(*r, drop))
+	}
+
+	for _, r := range v.Requestors {
+		pins = append(pins, *NewPinFromRequestor(*r, pickup))
+		pins = append(pins, *NewPinFromRequestor(*r, drop))
+	}
+
+	return pins
 }

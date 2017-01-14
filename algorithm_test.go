@@ -46,7 +46,7 @@ func TestGeneratePins(t *testing.T) {
 	assert.Equal(1, x.nextStateCount(pickup))
 
 	assert.Equal(" -> DROP (rider-1) -> DROP (rider-2) -> PICK_UP (rider-3) -> DROP (rider-3)", x.toString(),
-		"this is caused due to conversion of arays to maps")
+		"this is caused because maps doesnt guarantee order")
 
 	assert.True(x.valid())
 
@@ -54,7 +54,7 @@ func TestGeneratePins(t *testing.T) {
 	wrongListPin := makePinList(wrongPins...)
 
 	assert.Equal(" -> DROP (rider-1) -> DROP (rider-2) -> DROP (rider-3) -> PICK_UP (rider-3)", wrongListPin.toString(),
-		"this is caused due to conversion of arays to maps")
+		"this is caused because maps doesnt guarantee order")
 	assert.False(wrongListPin.valid())
 }
 

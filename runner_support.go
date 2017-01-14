@@ -7,6 +7,7 @@ import(
 	"strings"
 	"strconv"
 	"github.com/kr/pretty"
+	"errors"
 )
 
 func AddVeh() (*vehicle, error) {
@@ -48,6 +49,35 @@ func AddVeh() (*vehicle, error) {
 	pretty.Print(s, e)
 
 	return &v, nil
+}
+
+func PickupRider() error {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter Vehicle name: ")
+	text, _ := reader.ReadString('\n')
+	vehicle_name := chomp(text)
+
+	reader = bufio.NewReader(os.Stdin)
+	fmt.Print("Enter Passenger name: ")
+	text, _ = reader.ReadString('\n')
+	rider_name := chomp(text)
+
+	vehicles, err := redisST.FetchVehicleDetail(vehicle_name)
+	if err != nil {
+		return err
+	}
+
+	if len(vehicles) == 0 {
+		return errors.New("Vehicle not found")
+	}
+
+	v := vehicles[0]
+	err = v.Pickup(rider_name)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func RemoveVeh() (int64, error) {
