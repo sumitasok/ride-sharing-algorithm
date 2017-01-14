@@ -4,8 +4,11 @@ import(
 	"bufio"
 	"fmt"
 	"os"
-	"bitbucket.org/sumitasok/ride-fair"
+	ride "bitbucket.org/sumitasok/ride-fair"
 	"strings"
+)
+
+var(
 )
 
 func chomp(command string) string {
@@ -17,11 +20,22 @@ func main() {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter text: ")
 		text, _ := reader.ReadString('\n')
-		fmt.Println(text)
 
-		if chomp(text) == "EXIT" {
-			break
+		switch(chomp(text)) {
+		case "ADD_VEH":
+		case "RM_VEH":
+		case "UPDT_VEH":
+		case "REQ_RIDE":
+		case "CNCL_RIDE":
+		case "EXIT":
+			os.Exit(0)
+		default:
+			fmt.Println(text)
 		}
     }
 	ridefair.Store()
+}
+
+func addVeh() (*ride.vehicle, error) {
+	
 }
