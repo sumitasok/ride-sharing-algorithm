@@ -133,11 +133,11 @@ func AddRequest() error {
 		return err
 	}
 
-	req := NewRequestor(name, req.Quantity, *pickLoc, *dropLoc)
+	req := NewRequestor(name, quantity, *pickLoc, *dropLoc)
 
 	vs, err := redisST.GetValidVehicleForRequestors(req)
 
-	if err := nil {
+	if err != nil {
 		return err
 	}
 	selRank, err := AssignVehicles(*req, vs)

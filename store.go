@@ -168,6 +168,7 @@ func (r redisStore) GetValidVehicleForRequestors(req *requestor) ([]vehicle, err
 	validV := []vehicle{}
 	for _, v := range vs {
 		if req.Quantity <= v.occupancyStatus() {
+			println("Quan",req.Quantity,"OStats",v.occupancyStatus())
 			validV = append(validV, v)
 		}
 	}

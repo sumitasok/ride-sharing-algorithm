@@ -92,3 +92,48 @@ func TestVehicleGetByIdsRadius(t *testing.T) {
 	assert.NotEmpty(vs)
 	assert.True(true)
 }
+
+func TestRedisStore_GetValidVehicleForRequestors(t *testing.T) {
+	assert := assert.New(t)
+
+	v_1 := "c1"
+	v := vehicle{
+		ID: v_1,
+		Capacity: 3,
+		Location: location{
+			Lat: 12.978273,		//lakshmipura bus stop
+			Long: 77.631454,
+		},
+	}
+
+
+
+	cmd := NewRedisStore("localhost:6379", "")
+
+	t_vehicle := NewVehicle(4, location{"", 77.644396, 12.961543})
+
+	cmd.AddVehicle("blr", v_1,v.Location.Long, v.Location.Lat)
+
+	t_vehicle.ID = "c2"
+	s, e := cmd.InsertVehicles(v,t_vehicle)
+	assert.Equal("OK", s)
+	assert.NoError(e)
+	Rider3PickUP := NewLocationFromLatLong(12.938794, 77.629494, "close to shelton royale, koramangala")
+	Rider3Drop := NewLocationFromLatLong(12.970949, 77.657897, "Suranjan Das Rd") //Prestige Milton Garden Apartment, Milton St, D Costa Layout, Cooke Town, Bengaluru, Karnataka 560005
+	req := requestor{
+		Identifier: "rider-3",
+		State: rideRequested,
+		Quantity: 10,
+		PickupLocation: *Rider3PickUP,
+		DropLocation: *Rider3Drop,
+	}
+
+	vs, err:= cmd.GetValidVehicleForRequestors(&req)
+	assert.NoError(err)
+
+	pretty.Println(len(vs),err,vs)
+
+	assert.True(true)
+
+
+}

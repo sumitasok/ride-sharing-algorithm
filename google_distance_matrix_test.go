@@ -768,7 +768,7 @@ func TestMultiVehicle7(t *testing.T) {
 
 	pretty.Println("devResult::::", ranks, "err:::??", err)
 
-	assert.Equal("khrm1",ranks[0].V.ID)
+
 
 	for _, rank := range ranks {
 		path, _ := rank.Route.toMapAPI()

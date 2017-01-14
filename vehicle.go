@@ -64,10 +64,6 @@ func (v *vehicle) addRequestor(r requestor) error {
 
 func (v vehicle) occupancyStatus() int64 {
 	count := int64(0)
-	for _, r := range v.Requestors {
-		count += r.Quantity
-	}
-
 	for _, r := range v.Riders {
 		count += r.Quantity
 	}
