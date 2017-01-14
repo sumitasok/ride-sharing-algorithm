@@ -25,4 +25,7 @@ type vehicle struct {
 	Capacity             int64
 	Location             location
 	ID                   string
+	// requestors always sorted by first one to drop.
+	Requestors           map[string]*requestor
+	Riders               map[string]*requestor
 }

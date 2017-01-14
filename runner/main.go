@@ -26,6 +26,8 @@ func main() {
 		case "UPDT_VEH":
 		case "REQ_RIDE":
 		case "CNCL_RIDE":
+		case "PICKUP":
+			// "vehicle_name", "rider_id"
 		case "EXIT":
 			os.Exit(0)
 		default:
