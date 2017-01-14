@@ -28,6 +28,8 @@ func main() {
 		case "CNCL_RIDE":
 		case "PICKUP":
 			// "vehicle_name", "rider_id"
+			err := ride.PickupRider()
+			fmt.Println("ERR: ", err.Error())
 		case "EXIT":
 			os.Exit(0)
 		default:

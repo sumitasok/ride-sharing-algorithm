@@ -77,6 +77,11 @@ func PickupRider() error {
 		return err
 	}
 
+	_, err = redisST.InsertVehicles(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
