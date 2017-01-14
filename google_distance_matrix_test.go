@@ -4,9 +4,9 @@ import (
 	//"github.com/kr/pretty"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	//"time"
 	"time"
 	"github.com/kr/pretty"
+	"fmt"
 )
 
 /*func TestGDistanceMatrix(t *testing.T) {
@@ -318,4 +318,93 @@ func PendingDistanceMatRouteKFCMultipleVehicle(t *testing.T) {
 	//pretty.Println("TEST PRINT::::", routesCalculated)
 	d := <- out
 	pretty.Println("Go-JEK:::::",d.Route)
+}
+
+func TestMultiVehicle(t *testing.T) {
+
+	assert := assert.New(t)
+
+	//car1curr to car1rider1drop == 9min
+
+	car1CurrLoc, _ := NewLocationFromAddress("13.025190,77.636776")	// CDG Platinum building, 5th Cross Rd, HRBR Layout 3rd Block, HRBR Layout, Kalyan Nagar, Bengaluru, Karnataka 560043
+
+	car1Rider1Drop, errr := NewLocationFromAddress("13.004701,77.635832") // 6, Balakrishnappa Rd, Ramaswamipalya, Lingarajapuram, Bengaluru, Karnataka 560084
+	fmt.Println("ERRRRRR::",errr)
+
+	Rider2PickUP, _ := NewLocationFromAddress("13.010388,77.631283") //25, Sadashiva Temple Rd, KSFC Layout, Lingarajapuram, Bengaluru, Karnataka 560084
+	Rider2Drop, _ := NewLocationFromAddress("13.001607,77.624073") //Prestige Milton Garden Apartment, Milton St, D Costa Layout, Cooke Town, Bengaluru, Karnataka 560005
+
+	car2CurrLoc, _ := NewLocationFromAddress("13.021925,77.634051")  //Cafe Thulp, No.21/22, 2nd Cross Road, CPR Layout, Kammanahalli, Bengaluru, Karnataka 560084
+	car2Rider1Drop, _ := NewLocationFromAddress("13.011290,77.663083") // Service Rd, Govindpura, Dooravani Nagar, Bengaluru, Karnataka 560016
+
+	vehicle1 := vehicle{
+		ID: "khrm1",
+		Capacity: 4,
+		Location: *car1CurrLoc,
+		Riders: map[string]*requestor{
+			"rider-1": &requestor{
+				Identifier: "rider-1",
+				State:      pickedUp,
+				Quantity:   1,
+				DropLocation: *car1Rider1Drop,
+				PickupTime: time.Now().Add(-time.Minute*7),
+				DirectDropTime:time.Now().Add(time.Minute*16),
+
+			},
+		},
+		ExpectedLastDropTime: time.Now().Add(time.Minute*16),
+	}
+
+	req := requestor{
+		Identifier: "rider-2",
+		State: rideRequested,
+		Quantity: 1,
+		PickupLocation: *Rider2PickUP,
+		DropLocation: *Rider2Drop,
+	}
+
+	vehicle2 := vehicle{
+		ID: "khrm2",
+		Capacity: 4,
+		Location: *car1CurrLoc,
+		Riders: map[string]*requestor{
+			"rider-1": &requestor{
+				Identifier: "rider-1",
+				State:      pickedUp,
+				Quantity:   1,
+				DropLocation: *car2Rider1Drop,
+				PickupTime: time.Now().Add(-time.Minute*7),
+				DirectDropTime:time.Now().Add(time.Minute*21),
+
+			},
+		},
+		ExpectedLastDropTime: time.Now().Add(time.Minute*21),
+	}
+
+	cmd := NewRedisStore("localhost:6379", "")
+
+	cmd.AddVehicle("blr", "khrm1", car1CurrLoc.Long, car1CurrLoc.Lat)
+	cmd.AddVehicle("blr", "khrm2", car2CurrLoc.Long, car2CurrLoc.Lat)
+
+
+	count , err := cmd.InsertVehicles(vehicle1, vehicle2)
+	fmt.Println("Count", count, "Errr", err)
+
+	reqPickUpPin :=  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
+	reqDropPin :=  *NewPinFromRequestor(req, drop)
+
+	vs := []vehicle{vehicle1, vehicle2}
+
+	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
+	pretty.Println("Rank 0::", ranks[0].V.ID)
+
+	pretty.Println("Ranks::", ranks)
+
+	//devResult, err := AssignVehicles(req)
+	assert.Equal(2,len(ranks))
+
+	pretty.Println("devResult::::", ranks, "err:::??", err)
+
+	assert.Equal("khrm1",ranks[0].V.ID)
+
 }
