@@ -790,8 +790,9 @@ func TestMultiVehicle10(t *testing.T) {
 	car2CurrLoc := NewLocationFromLatLong(12.951583, 77.621532, "Near koramangala police station")  //Cafe Thulp, No.21/22, 2nd Cross Road, CPR Layout, Kammanahalli, Bengaluru, Karnataka 560084
 	car2Rider1Drop := NewLocationFromLatLong(12.954519, 77.681743, "Hindustan aeronautics") // Service Rd, Govindpura, Dooravani Nagar, Bengaluru, Karnataka 560016
 
-	Rider3PickUP := NewLocationFromLatLong(12.938794, 77.629494, "close to shelton royale, koramangala")
-	Rider3Drop := NewLocationFromLatLong(12.970949, 77.657897, "Suranjan Das Rd") //Prestige Milton Garden Apartment, Milton St, D Costa Layout, Cooke Town, Bengaluru, Karnataka 560005
+	/*Rider3PickUP := NewLocationFromLatLong(12.938794, 77.629494, "close to shelton royale, koramangala")
+	Rider3Drop := NewLocationFromLatLong(12.970949, 77.657897, "Suranjan Das Rd") //Prestige Milton Garden Apartment, Milton St, D Costa Layout, Cooke Town, Bengaluru, Karnataka 560005*/
+
 
 
 	vehicle1 := vehicle{
@@ -808,25 +809,16 @@ func TestMultiVehicle10(t *testing.T) {
 				DirectDropTime:time.Now().Add(time.Minute*9),
 
 			},
-			"rider-2": &requestor{
-				Identifier: "rider-2",
-				State: rideRequested,
-				Quantity: 1,
-				PickupLocation: *Rider2PickUP,
-				DropLocation: *Rider2Drop,
-				PickupTime: time.Now().Add(-time.Minute*20),
-				DirectDropTime:time.Now().Add(time.Minute*30),
-			},
 		},
 		ExpectedLastDropTime: time.Now().Add(time.Minute*30),
 	}
 
 	req := requestor{
-		Identifier: "rider-3",
+		Identifier: "rider-2",
 		State: rideRequested,
 		Quantity: 1,
-		PickupLocation: *Rider3PickUP,
-		DropLocation: *Rider3Drop,
+		PickupLocation: *Rider2PickUP,
+		DropLocation: *Rider2Drop,
 	}
 
 	vehicle2 := vehicle{
