@@ -63,7 +63,7 @@ func AssignVehicle(req requestor, vs []vehicle) (DeviationResult,error) {
 	reqPickUpPin :=  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
 	reqDropPin :=  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
 
-	empV, occV := SegregateVehicles(vs)
+	_, occV := SegregateVehicles(vs)
 
 	ranks := GetVehiclesRanking(occV, req.Identifier, reqPickUpPin, reqDropPin)
 
@@ -89,7 +89,8 @@ func AssignVehicle(req requestor, vs []vehicle) (DeviationResult,error) {
 	}
 
 	if !resp.Accept {
-		AssignEmptyVehicle(empV)
+		//v , err := AssignEmptyVehicle(empV)
+
 		return DeviationResult{}, errors.New("No Vehicle found")
 	}
 
