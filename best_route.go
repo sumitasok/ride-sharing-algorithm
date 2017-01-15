@@ -87,7 +87,7 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 
 	var stepTime,reqPickUpTime,reqDropTime time.Time
 
-	for _, pins := range routes_calculated {
+	for pID, pins := range routes_calculated {
 		routeDeviation := time.Duration(0)
 		stepTime = now
 		for _, route := range pins {
@@ -118,7 +118,7 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 			}
 		}
 
-		//fmt.Println("Now",now,"STEP TIME:::", stepTime,"VEHICLEID::", v.ID,"Route No :: ", pinID, "PINTOSTRING", pins.toString(),"Deviation::", routeDeviation.Minutes())
+		pretty.Println("Route #", pID, "Vehicle", v.ID, "Route:::", pins.toTimeString(time.Now()))
 
 		if routeDeviation < bestRouteDeviation {
 			bestRouteDeviation = routeDeviation

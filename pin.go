@@ -148,7 +148,7 @@ func (p pinList) toTimeString(t time.Time) string {
 
 	for _, pin := range p {
 		t = t.Add(pin.TimeToCover)
-		text = fmt.Sprintf("%s - %s -> %s (%s)", text, string(pin.NextState), t,string(pin.Rider.Identifier))
+		text = fmt.Sprintf("%s - %s %s  -> (%s)", text, string(pin.NextState), string(pin.Rider.Identifier), t)
 	}
 
 	return text
