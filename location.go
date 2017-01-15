@@ -6,9 +6,14 @@ import (
 	"context"
 )
 
-const apiKey = "AIzaSyCyIeVJaMJIL72mmuH8w20HNpypp-klD_4"
+const (
+	//apiKeyOld = "AIzaSyCyIeVJaMJIL72mmuH8w20HNpypp-klD_4"
+	//apiKey = "AIzaSyBlZ2uYfYw7t44rK1eby50C7G6OLbURAd8"
+	//apiKey = "AIzaSyB8yoTSFMGF4fr_-K_QOrKR5ZpUSbwRzTY"
+	apiKey = "AIzaSyB4Wy09j3GjgkE0bqsV-h4eI0sw2JPfapI"
+)
 
-func NewLocationFromLatLong(lat, long float64) *location {
+func NewLocationFromLatLong(lat, long float64, address ...string) *location {
 	return &location{Long: long, Lat: lat}
 }
 
