@@ -10,7 +10,7 @@ import (
 
 type redisGeo []redis.GeoLocation
 
-func GDistanceMatrix( pins pinList) pinList {
+func GDistanceMatrix( pins pinList) (pinList, error) {
 	disReq := &maps.DistanceMatrixRequest{}
 
 	destination := pins.latLongList()
@@ -24,14 +24,15 @@ func GDistanceMatrix( pins pinList) pinList {
 	var client *maps.Client
 	client, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
-		log.Fatalf("fatal error: %s", err)
+		log.Println("Error GDistanceMatrix", err)
+		return nil, err
 	}
 
 	resp, err := client.DistanceMatrix(context.Background(), disReq)
 	if err != nil {
-		log.Fatalf("fatal error: %s", err)
+		log.Println("Error GDistanceMatrix", err)
+		return nil, err
 	}
-
 	// pretty.Println("Google response:::::",resp)
 
 
@@ -56,7 +57,7 @@ func GDistanceMatrix( pins pinList) pinList {
 
 	//pretty.Println("PIN METRICS ::: ",pinsWithMetrix)
 
-	return pinsWithMetrix
+	return pinsWithMetrix, nil
 
 }
 

@@ -193,3 +193,18 @@ func (v vehicle) GetRiderPins() pinList {
 
 	return pins
 }
+
+func SegregateVehicles(vs []vehicle) ([]vehicle,[]vehicle) {
+	empty := []vehicle{}
+	occVehicle := []vehicle{}
+
+	for _,v := range vs {
+		if v.occupancyStatus() == 0 {
+			empty = append(empty, v)
+		} else {
+			occVehicle = append(occVehicle, v)
+		}
+	}
+
+	return empty, occVehicle
+}

@@ -143,7 +143,7 @@ func AddRequest() error {
 	}
 
 	now := time.Now()
-	selRank, err := AssignVehicles(*req, vs)
+	selRank, err := AssignVehicle(*req, vs)
 	if err != nil {
 		return err
 	}

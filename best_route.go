@@ -5,9 +5,16 @@ import (
 	"time"
 	"math"
 	"github.com/kr/pretty"
+	"errors"
 //	"github.com/skratchdot/open-golang/open"
 )
 
+
+var (
+	SharingFactor = time.Duration(17)
+	NormalFactor = time.Duration(10)
+	ErrNoBestRoute = errors.New("No routes with max deviation of 1.7 found")
+)
 type DeviationResult struct {
 	V                vehicle
 	Route            pinList
@@ -17,6 +24,7 @@ type DeviationResult struct {
 	DirectDropTime   time.Time
 	PickUpTime       time.Time
 	DropTime         time.Time
+	Error error
 }
 
 func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, now time.Time, out chan DeviationResult) ( []pinList, time.Time, time.Duration ){
@@ -31,7 +39,15 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 	pins = append(pins, reqDropPin)
 
 
-	pinsWithMetrics := GDistanceMatrix(pins)
+	pinsWithMetrics, err := GDistanceMatrix(pins)
+	if err != nil {
+		out <- DeviationResult{
+			V : v,
+			Error: err,
+		}
+		return nil, now, 0
+	}
+
 
 	vehiclePinMatrix, _ := pinsWithMetrics.findByLatLongString(vehiclePin.latLongString())	// vehiclePinMatrix gives metrics of vehicle that is all the distances covered having vehicle the start point
 
@@ -96,9 +112,10 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 				*/
 				routeDeviation += dev
 				fmt.Println("Rider", route.Rider.Identifier,"route.Rider.DirectDropTime",route.Rider.DirectDropTime,"dev",dev, "routeDeviation", routeDeviation)
-
+				if route.Rider.DirectDropTime.Sub(now) * NormalFactor >  stepTime.Sub(now) * SharingFactor{
+					break
+				}
 			}
-
 		}
 		fmt.Println()
 
@@ -119,6 +136,14 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 
 	pretty.Println("Best route index", bestRouteIndex, "Deviation::: ", bestRouteDeviation.Minutes(),"Delta Deviation:: ", vehicleDeviation.Minutes(), "BestRoute",bestRoute.toString(),"VEHICLEID::", v.ID)
 
+
+	var errX error
+	if bestRouteDeviation == time.Duration(math.MaxInt64) {
+		errX = ErrNoBestRoute
+
+	}
+
+
 	out <- DeviationResult{
 		v,
 		bestRoute,
@@ -128,6 +153,7 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 		reqBestDropTime,
 		reqPickUpTime,
 		reqDropTime,
+		errX,
 	}
 
 	return routes_calculated, reqBestDropTime, vehicleDeviation

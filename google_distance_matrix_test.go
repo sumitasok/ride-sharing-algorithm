@@ -249,7 +249,7 @@ func TestDistanceMatRouteKFC (t *testing.T) {
 	route := <- out
 	// pretty.Println("Out Channel", <-out)
 
-	assert.Equal(" -> START () -> PICK_UP (rider-2) -> DROP (rider-1) -> DROP (rider-2) -> PICK_UP (rider-3) -> DROP (rider-3)", route.Route.toString())
+	assert.Equal(" -> START () -> DROP (rider-1) -> PICK_UP (rider-2) -> DROP (rider-2) -> PICK_UP (rider-3) -> DROP (rider-3)", route.Route.toString())
 
 	close(out)
 	//pretty.Println("TEST PRINT::::", routesCalculated2)

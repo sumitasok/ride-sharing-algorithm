@@ -4,10 +4,13 @@ import (
 	"time"
 	"sort"
 	"errors"
+	"math/rand"
 )
 
 const (
 	RADIUS = 30
+	MAXDEVIATION = 1.75
+	MinNbrVeh = 0
 )
 
 
@@ -42,7 +45,10 @@ func GetVehiclesRanking(vs []vehicle, reqID string, reqPickUpPin, reqDropPin pin
 
 	ranking := Ranking{}
 	for i := 0; i < len(vs);i++ {
-		ranking = append(ranking,<- out)
+		rank := <- out
+		if rank.Error == nil {
+			ranking = append(ranking, rank)
+		}
 	}
 	close(out)
 
@@ -50,14 +56,16 @@ func GetVehiclesRanking(vs []vehicle, reqID string, reqPickUpPin, reqDropPin pin
 	// pretty.Println("RANKING:::", ranking)
 
 	return ranking
+
 }
 
-func AssignVehicles(req requestor, vs []vehicle) (DeviationResult,error) {
+func AssignVehicle(req requestor, vs []vehicle) (DeviationResult,error) {
 	reqPickUpPin :=  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
 	reqDropPin :=  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
 
+	empV, occV := SegregateVehicles(vs)
 
-	ranks := GetVehiclesRanking(vs, req.Identifier, reqPickUpPin, reqDropPin)
+	ranks := GetVehiclesRanking(occV, req.Identifier, reqPickUpPin, reqDropPin)
 
 	nbrOfReqVeh := len(ranks)
 
@@ -81,6 +89,7 @@ func AssignVehicles(req requestor, vs []vehicle) (DeviationResult,error) {
 	}
 
 	if !resp.Accept {
+		AssignEmptyVehicle(empV)
 		return DeviationResult{}, errors.New("No Vehicle found")
 	}
 
@@ -96,6 +105,16 @@ func AssignVehicles(req requestor, vs []vehicle) (DeviationResult,error) {
 	selRank.V.Riders[req.Identifier] = &req
 	selRank.V.CurrentRoute = routes{Pins:selRank.Route}
 	return selRank, nil
+}
+
+func AssignEmptyVehicle(vs []vehicle) (vehicle,error) {
+	var v vehicle
+	nbrOf := len(vs)
+	if len(vs) <= MinNbrVeh {
+		return v, ErrNoNearbyVehicle
+	}
+
+	return vs[rand.Intn(nbrOf)],nil
 }
 
 func sendRequestToVehicle(v vehicle, rank int,out chan ResponseVehicle) {

@@ -8,7 +8,9 @@ import (
 
 const (
 	//apiKeyOld = "AIzaSyCyIeVJaMJIL72mmuH8w20HNpypp-klD_4"
-	apiKey = "AIzaSyBlZ2uYfYw7t44rK1eby50C7G6OLbURAd8"
+	//apiKey = "AIzaSyBlZ2uYfYw7t44rK1eby50C7G6OLbURAd8"
+	apiKey = "AIzaSyB8yoTSFMGF4fr_-K_QOrKR5ZpUSbwRzTY"
+
 )
 
 func NewLocationFromLatLong(lat, long float64, address ...string) *location {

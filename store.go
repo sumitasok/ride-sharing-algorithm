@@ -14,7 +14,7 @@ import (
 var (
 	redisST                   = NewRedisStore("localhost:6379", "")
 	REGION                    = "blr"
-	ErrVehicleNoNearbyVehicle = errors.New("No near by vehicle found")
+	ErrNoNearbyVehicle = errors.New("No near by vehicle found")
 )
 
 func Store() {
@@ -175,7 +175,7 @@ func (r redisStore) GetValidVehicleForRequestors(req *requestor) ([]vehicle, err
 		}
 	}
 	if len(validV) == 0 {
-		return nil, ErrVehicleNoNearbyVehicle
+		return nil, ErrNoNearbyVehicle
 	}
 	return validV, nil
 }

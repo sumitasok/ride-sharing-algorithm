@@ -42,9 +42,10 @@ func TestAddAndFindByRadius(t *testing.T) {
 func TestInsertVehicle(t *testing.T) {
 	assert := assert.New(t)
 
-	v_1 := "c1"
+	v1 := "c1"
+
 	v := vehicle{
-		ID: v_1,
+		ID: v1,
 		Capacity: 3,
 		Location: location{
 			Lat: 12.978273,		//lakshmipura bus stop
@@ -58,14 +59,14 @@ func TestInsertVehicle(t *testing.T) {
 
 	t_vehicle := NewVehicle(4, location{"", 77.644396, 12.961543})
 
-	cmd.AddVehicle("blr", v_1,v.Location.Long, v.Location.Lat)
+	cmd.AddVehicle("blr", v1, v.Location.Long, v.Location.Lat)
 
 	t_vehicle.ID = "c2"
 	s, e := cmd.InsertVehicles(v,t_vehicle)
 	assert.Equal("OK", s)
 	assert.NoError(e)
 
-	vs, err := cmd.FetchVehicleDetail( v_1,"c2")
+	vs, err := cmd.FetchVehicleDetail(v1,"c2")
 
 	pretty.Println(vs)
 
