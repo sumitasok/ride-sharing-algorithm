@@ -179,12 +179,12 @@ func TestDistanceMatRouteKFC (t *testing.T) {
 				State:      pickedUp,
 				Quantity:   1,
 				DropLocation: *Rider1Drop,
-				PickupTime: time.Now().Add(-time.Minute*7),
-				DirectDropTime:time.Now().Add(time.Minute*16),
+				PickupTime: time.Now().Add(-time.Minute * 7),
+				DirectDropTime:time.Now().Add(time.Minute * 16),
 
 			},
 		},
-		ExpectedLastDropTime: time.Now().Add(time.Minute*25),
+		ExpectedLastDropTime: time.Now().Add(time.Minute * 25),
 	}
 
 	req := requestor{
@@ -195,44 +195,41 @@ func TestDistanceMatRouteKFC (t *testing.T) {
 		DropLocation: *Rider2Drop,
 	}
 
-	reqPickUpPin :=  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
-	reqDropPin :=  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
+	reqPickUpPin := *NewPinFromRequestor(req, pickup)        // New pin for upcoming rider's pickup
+	reqDropPin := *NewPinFromRequestor(req, drop)                // New pin for upcoming rider's drop
 
 	out := make(chan DeviationResult)
 
 	var directDropTime time.Time
 	go func() {
-		_, directDropTime, _ = calculateDeviation(v, reqPickUpPin, reqDropPin, time.Now(), out)
+		_, directDropTime, _ = calculateDeviation(v, req.Identifier, reqPickUpPin, reqDropPin, time.Now(), out)
 	}()
 	//pretty.Println("TEST PRINT::::", routesCalculated)
-	d := <- out
-	pretty.Println("Go-JEK:::::",d.Route)
-
+	d := <-out
+	pretty.Println("Go-JEK:::::", d.Route)
 
 	v = vehicle{
 		Capacity: 4,
 		Location: *carCurrLoc2,
-		Riders: map[string]*requestor {
+		Riders: map[string]*requestor{
 			"rider-1": &requestor{
 				Identifier: "rider-1",
 				State:      pickedUp,
 				Quantity:   1,
 				DropLocation: *Rider1Drop,
-				PickupTime: time.Now().Add(-time.Minute*30),
-				DirectDropTime:time.Now().Add(time.Minute*25),
+				PickupTime: time.Now().Add(-time.Minute * 30),
+				DirectDropTime:time.Now().Add(time.Minute * 25),
 
 			},
+		 "rider-2": &requestor{
+			Identifier: "rider-2",
+			State: rideRequested,
+			Quantity: 1,
+			PickupLocation: *Rider2PickUP,
+			DropLocation: *Rider2Drop,
+			DirectDropTime: directDropTime,
 		},
-		Requestors: map[string]*requestor{
-			"rider-2": &requestor{
-				Identifier: "rider-2",
-				State: rideRequested,
-				Quantity: 1,
-				PickupLocation: *Rider2PickUP,
-				DropLocation: *Rider2Drop,
-				DirectDropTime: directDropTime,
-			},
-		},
+	},
 		ExpectedLastDropTime: d.ExpectedLastTime,
 	}
 
@@ -247,7 +244,7 @@ func TestDistanceMatRouteKFC (t *testing.T) {
 	reqPickUpPin =  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
 	reqDropPin =  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
 	go func() {
-		calculateDeviation(v, reqPickUpPin, reqDropPin, time.Now().Add(time.Minute * 2), out) // time.Now() * 4 is the time between cars current location and Rider-2's pickup
+		calculateDeviation(v, req.Identifier,reqPickUpPin, reqDropPin, time.Now().Add(time.Minute * 2), out) // time.Now() * 4 is the time between cars current location and Rider-2's pickup
 	}()
 	route := <- out
 	// pretty.Println("Out Channel", <-out)
@@ -314,7 +311,7 @@ func PendingDistanceMatRouteKFCMultipleVehicle(t *testing.T) {
 
 	var directDropTime time.Time
 	go func() {
-		_, directDropTime, _ = calculateDeviation(v, reqPickUpPin, reqDropPin, time.Now(), out)
+		_, directDropTime, _ = calculateDeviation(v, req.Identifier,reqPickUpPin, reqDropPin, time.Now(), out)
 	}()
 	//pretty.Println("TEST PRINT::::", routesCalculated)
 	d := <- out
@@ -396,7 +393,7 @@ func TestMultiVehicle(t *testing.T) {
 
 	vs := []vehicle{vehicle1, vehicle2}
 
-	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
+	ranks := GetVehiclesRanking(vs, req.Identifier, reqPickUpPin, reqDropPin)
 	pretty.Println("Rank 0::", ranks[0].V.ID)
 
 	pretty.Println("Ranks::", ranks)
@@ -490,7 +487,7 @@ func TestMultiVehicle1(t *testing.T) {
 
 	vs := []vehicle{vehicle1, vehicle2}
 
-	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
+	ranks := GetVehiclesRanking(vs, req.Identifier, reqPickUpPin, reqDropPin)
 	pretty.Println("Rank 0::", ranks[0].V.ID)
 
 	pretty.Println("Ranks::", ranks)
@@ -500,7 +497,7 @@ func TestMultiVehicle1(t *testing.T) {
 
 	pretty.Println("devResult::::", ranks, "err:::??", err)
 
-	assert.Equal("khrm1",ranks[0].V.ID)
+	assert.Equal("pogba",ranks[0].V.ID)
 
 	for _, rank := range ranks {
 		path, _ := rank.Route.toMapAPI()
@@ -652,7 +649,7 @@ func TestMultiVehicle2(t *testing.T) {
 
 	vs := []vehicle{vehicle1, vehicle2}
 
-	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
+	ranks := GetVehiclesRanking(vs, req.Identifier, reqPickUpPin, reqDropPin)
 	pretty.Println("Rank 0::", ranks[0].V.ID)
 
 	pretty.Println("Ranks::", ranks)
@@ -758,7 +755,7 @@ func TestMultiVehicle7(t *testing.T) {
 
 	vs := []vehicle{vehicle1, vehicle2}
 
-	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
+	ranks := GetVehiclesRanking(vs, req.Identifier, reqPickUpPin, reqDropPin)
 	pretty.Println("Rank 0::", ranks[0].V.ID)
 
 	pretty.Println("Ranks::", ranks)

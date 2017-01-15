@@ -14,10 +14,12 @@ type DeviationResult struct {
 	Deviation        time.Duration
 	VehicleDeviation time.Duration
 	ExpectedLastTime time.Time
-	DirectDropTime time.Time
+	DirectDropTime   time.Time
+	PickUpTime       time.Time
+	DropTime         time.Time
 }
 
-func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time, out chan DeviationResult) ( []pinList, time.Time, time.Duration ){
+func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, now time.Time, out chan DeviationResult) ( []pinList, time.Time, time.Duration ){
 
 	riderPins := v.GetRiderPins()
 	pins := pinList{}
@@ -38,12 +40,12 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 	requestPickUpPinMatrix, _ := pinsWithMetrics.findByLatLongString(reqPickUpPin.latLongString())
 
 	// from vehiclePinMatrix, calculating the direct time to pick up the upcoming rider
-	reqPickUpTime := now.Add(vehiclePinMatrix.Distance[reqPickUpPin.latLongString()].Time)
+	reqBestPickUpTime := now.Add(vehiclePinMatrix.Distance[reqPickUpPin.latLongString()].Time)
 
-	fmt.Println("reqPickUpTime:::",reqPickUpTime)
+	fmt.Println("reqPickUpTime:::", reqBestPickUpTime)
 
 	// direct time from upcoming riders pickup to his drop
-	reqBestDropTime := reqPickUpTime.Add(requestPickUpPinMatrix.Distance[reqDropPin.latLongString()].Time)
+	reqBestDropTime := reqBestPickUpTime.Add(requestPickUpPinMatrix.Distance[reqDropPin.latLongString()].Time)
 
 	// requestorTravel time if directly from pickup to drop
 	//reqBestTravelTime := reqBestDropTime.Sub(reqPickUpTime)
@@ -66,14 +68,25 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 	bestRoute := pinList{}
 	bestRouteIndex := 0
 	vehicleDeviation := time.Duration(math.MaxInt64)
-	var stepTime time.Time
+
+	var stepTime,reqPickUpTime,reqDropTime time.Time
+
 	for pinID, pins := range routes_calculated {
 		routeDeviation := time.Duration(0)
 		stepTime = now
 		for _, route := range pins {
 			stepTime = stepTime.Add(route.TimeToCover)
-			fmt.Println("stepTime",stepTime, "route.State",route.RextState)
-			if route.RextState == drop {
+			fmt.Println("stepTime",stepTime, "route.State",route.NextState)
+			if route.NextState == pickup {
+				if route.Rider.Identifier == reqID {
+					reqPickUpTime = stepTime
+				}
+			}
+			if route.NextState == drop {
+				if route.Rider.Identifier == reqID {
+					reqDropTime = stepTime
+				}
+
 				// Deviation for driver who is going to be dropped at this step
 				dev := stepTime.Sub(route.Rider.DirectDropTime)
 				/*
@@ -113,6 +126,8 @@ func calculateDeviation(v vehicle, reqPickUpPin , reqDropPin pin, now time.Time,
 		vehicleDeviation,
 		stepTime,
 		reqBestDropTime,
+		reqPickUpTime,
+		reqDropTime,
 	}
 
 	return routes_calculated, reqBestDropTime, vehicleDeviation

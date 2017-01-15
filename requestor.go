@@ -29,8 +29,10 @@ type requestor struct {
 	State            travelState
 	Quantity         int64
 	PickupTime       time.Time
+	DropTime         time.Time
 	PickupLocation   location
 	DropLocation     location
+	ExpectedPickUpTime time.Time
 	ExpectedDropTime time.Time
 	RequestTime      time.Time
 				       // seconds

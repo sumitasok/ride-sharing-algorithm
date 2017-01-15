@@ -31,13 +31,13 @@ func (r Ranking) Swap(i, j int) {
 }
 
 
-func GetVehiclesRanking(vs []vehicle, reqPickUpPin, reqDropPin pin) Ranking {
+func GetVehiclesRanking(vs []vehicle, reqID string, reqPickUpPin, reqDropPin pin) Ranking {
 	out := make(chan DeviationResult,len(vs))
 
 	now := time.Now()
 
 	for _, v := range vs {
-		go calculateDeviation(v,reqPickUpPin,reqDropPin,now, out)
+		go calculateDeviation(v,reqID,reqPickUpPin,reqDropPin,now, out)
 	}
 
 	ranking := Ranking{}
@@ -47,7 +47,6 @@ func GetVehiclesRanking(vs []vehicle, reqPickUpPin, reqDropPin pin) Ranking {
 	close(out)
 
 	sort.Sort(ranking)
-
 	// pretty.Println("RANKING:::", ranking)
 
 	return ranking
@@ -58,17 +57,23 @@ func AssignVehicles(req requestor, vs []vehicle) (DeviationResult,error) {
 	reqDropPin :=  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
 
 
-	ranks := GetVehiclesRanking(vs, reqPickUpPin, reqDropPin)
+	ranks := GetVehiclesRanking(vs, req.Identifier, reqPickUpPin, reqDropPin)
 
-	nbrOfRanks := len(ranks)
+	nbrOfReqVeh := len(ranks)
 
-	respChan := make(chan ResponseVehicle, nbrOfRanks)
+	respChan := make(chan ResponseVehicle, nbrOfReqVeh)
+	if len(ranks) < 0 {
+		return DeviationResult{}, errors.New("No Vehicle found")
+	}
+	nbrOfReqVeh = 0
 	for i := range ranks {
 		go sendRequestToVehicle(ranks[i].V, i,respChan)
+		nbrOfReqVeh++
 	}
 
 	var resp ResponseVehicle
-	for i := 0; i < nbrOfRanks; i++ {
+
+	for i := 0; i < nbrOfReqVeh; i++ {
 		resp = <- respChan
 		if resp.Accept {
 			break
@@ -86,7 +91,10 @@ func AssignVehicles(req requestor, vs []vehicle) (DeviationResult,error) {
 	}
 	req.State = rideRequested
 	req.DirectDropTime = selRank.DirectDropTime
+	req.ExpectedPickUpTime = selRank.PickUpTime
+	req.ExpectedPickUpTime = selRank.DropTime
 	selRank.V.Riders[req.Identifier] = &req
+	selRank.V.CurrentRoute = routes{Pins:selRank.Route}
 	return selRank, nil
 }
 

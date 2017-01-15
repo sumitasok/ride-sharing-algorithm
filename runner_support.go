@@ -10,6 +10,7 @@ import (
 
 	"github.com/kr/pretty"
 	"github.com/skratchdot/open-golang/open"
+	"time"
 )
 
 func AddVeh() (*vehicle, error) {
@@ -140,12 +141,14 @@ func AddRequest() error {
 	if err != nil {
 		return err
 	}
-	
+
+	now := time.Now()
 	selRank, err := AssignVehicles(*req, vs)
 	if err != nil {
 		return err
 	}
-	pretty.Println(selRank)
+
+	pretty.Println(selRank.Route.toTimeString(now))
 	_, err = redisST.InsertVehicles(selRank.V)
 	if err != nil {
 		return err

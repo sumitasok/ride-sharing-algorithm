@@ -81,7 +81,7 @@ func TestVehicleRanking(t *testing.T) {
 	reqPickUpPin :=  *NewPinFromRequestor(req, pickup) 	// New pin for upcoming rider's pickup
 	reqDropPin :=  *NewPinFromRequestor(req, drop)		// New pin for upcoming rider's drop
 
-	ranking := GetVehiclesRanking([]vehicle{vehicle1, vehicle2}, reqPickUpPin, reqDropPin)
+	ranking := GetVehiclesRanking([]vehicle{vehicle1, vehicle2},req.Identifier, reqPickUpPin, reqDropPin)
 
 	assert.Len(ranking, 2)
 	assert.Equal("khrm1", ranking[0].V.ID)

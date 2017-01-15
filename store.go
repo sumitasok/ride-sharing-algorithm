@@ -8,12 +8,13 @@ import (
 	"log"
 
 	"gopkg.in/redis.v5"
+	"github.com/kr/pretty"
 )
 
 var (
 	redisST                   = NewRedisStore("localhost:6379", "")
 	REGION                    = "blr"
-	ErrVehicleNoNearbyVehicle = errors.New("No new near by vehicle found")
+	ErrVehicleNoNearbyVehicle = errors.New("No near by vehicle found")
 )
 
 func Store() {
@@ -80,7 +81,8 @@ func (r redisStore) FetchVehicleDetail(keys ...string) ([]vehicle, error) {
 	vs := []vehicle{}
 	for _, result := range results {
 		v := vehicle{}
-		vBuff := bytes.NewBufferString(result.(string))
+		res, _ := result.(string)
+		vBuff := bytes.NewBufferString(res)
 		dec := gob.NewDecoder(vBuff)
 		err = dec.Decode(&v)
 		if err != nil {
@@ -158,7 +160,7 @@ func (r redisStore) GetValidVehicleForRequestors(req *requestor) ([]vehicle, err
 		//return DeviationResult{}, err
 		return nil, err
 	}
-	//TBD from radius
+	pretty.Println(len(ids),ids)
 	vs, err := r.FetchVehicleDetail(ids...)
 	if err != nil {
 		log.Println("Err Assign vehicle", err)
@@ -167,8 +169,8 @@ func (r redisStore) GetValidVehicleForRequestors(req *requestor) ([]vehicle, err
 	}
 	validV := []vehicle{}
 	for _, v := range vs {
-		if req.Quantity <= v.occupancyStatus() {
-			println("Quan",req.Quantity,"OStats",v.occupancyStatus())
+		println("v.Capacity - v.occupancyStatus()",v.Capacity - v.occupancyStatus())
+		if req.Quantity <= (v.Capacity - v.occupancyStatus()) {
 			validV = append(validV, v)
 		}
 	}

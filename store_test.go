@@ -110,12 +110,20 @@ func TestRedisStore_GetValidVehicleForRequestors(t *testing.T) {
 
 	cmd := NewRedisStore("localhost:6379", "")
 
-	t_vehicle := NewVehicle(4, location{"", 77.644396, 12.961543})
+	t_vehicle := vehicle{
+		ID: "test",
+		Capacity: 4,
+		Location: location{
+			Lat: 12.961543,		//lakshmipura bus stop
+			Long: 77.644396,
+		},
+	}
+	t_vehicle.ID = "c2"
 
 	cmd.AddVehicle("blr", v_1,v.Location.Long, v.Location.Lat)
+	cmd.AddVehicle("blr", t_vehicle.ID,t_vehicle.Location.Long, t_vehicle.Location.Lat)
 
-	t_vehicle.ID = "c2"
-	s, e := cmd.InsertVehicles(v,t_vehicle)
+	s, e := cmd.InsertVehicles(t_vehicle,v)
 	assert.Equal("OK", s)
 	assert.NoError(e)
 	Rider3PickUP := NewLocationFromLatLong(12.938794, 77.629494, "close to shelton royale, koramangala")
@@ -123,7 +131,7 @@ func TestRedisStore_GetValidVehicleForRequestors(t *testing.T) {
 	req := requestor{
 		Identifier: "rider-3",
 		State: rideRequested,
-		Quantity: 10,
+		Quantity: 4,
 		PickupLocation: *Rider3PickUP,
 		DropLocation: *Rider3Drop,
 	}

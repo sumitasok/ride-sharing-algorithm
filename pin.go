@@ -15,7 +15,7 @@ type tdMetrix struct {
 }
 
 func NewPin(_nextState nextState, _rider requestor, _location location) *pin {
-	return &pin{RextState: _nextState, Rider: _rider, Location: _location}
+	return &pin{NextState: _nextState, Rider: _rider, Location: _location}
 }
 
 func NewPinFromVehicle(v_vehicle vehicle) *pin {
@@ -31,7 +31,7 @@ func NewPinFromRequestor(_requestor requestor, _nextState nextState) *pin {
 }
 
 type pin struct {
-	RextState     nextState
+	NextState     nextState
 	Rider         requestor
 	Location      location
 	MetersToCover int64
@@ -42,7 +42,7 @@ type pin struct {
 }
 
 func (p pin) isVehicle() bool {
-	if p.RextState == start {
+	if p.NextState == start {
 		return true
 	}
 
@@ -99,7 +99,7 @@ func (p *pinList) nextStateCount(state nextState) int {
 	var count int = 0
 
 	for _, _p := range *p {
-		if _p.RextState == state {
+		if _p.NextState == state {
 			count += 1
 		}
 	}
@@ -119,7 +119,7 @@ func (p pinList) remove(_pin pin) pinList {
 	pins := []pin{}
 
 	for _, _p := range p {
-		if !(_p.Rider.Identifier == _pin.Rider.Identifier && _p.RextState == _pin.RextState) {
+		if !(_p.Rider.Identifier == _pin.Rider.Identifier && _p.NextState == _pin.NextState) {
 			pins = append(pins, _p)
 		}
 	}
@@ -132,22 +132,33 @@ func (p pinList) valid() bool {
 
 	for _, pin := range p {
 		if prevState, ok := state[pin.Rider.Identifier]; ok {
-			if prevState == drop && pin.RextState == pickup {
+			if prevState == drop && pin.NextState == pickup {
 				return false
 			}
 		}
 
-		state[pin.Rider.Identifier] = pin.RextState
+		state[pin.Rider.Identifier] = pin.NextState
 	}
 
 	return true
+}
+
+func (p pinList) toTimeString(t time.Time) string {
+	text := ""
+
+	for _, pin := range p {
+		t.Add(pin.TimeToCover)
+		text = fmt.Sprintf("%s - %s -> %s (%s)", text, string(pin.NextState), t,string(pin.Rider.Identifier))
+	}
+
+	return text
 }
 
 func (p pinList) toString() string {
 	text := ""
 
 	for _, pin := range p {
-		text = fmt.Sprintf("%s -> %s (%s)", text, string(pin.RextState), string(pin.Rider.Identifier))
+		text = fmt.Sprintf("%s -> %s (%s)", text, string(pin.NextState), string(pin.Rider.Identifier))
 	}
 
 	return text
@@ -174,7 +185,7 @@ func generatePins(v vehicle, requestors ...requestor) []pin {
 	// added riders who are on board to pins as to be dropped
 	for _, r := range v.Riders {
 		pins = append(pins, pin{
-			RextState: drop,
+			NextState: drop,
 			Rider:     *r,
 		})
 	}
@@ -182,10 +193,10 @@ func generatePins(v vehicle, requestors ...requestor) []pin {
 	// listing pickups and drops of yet to be picked up riders
 	for _, r := range requestors {
 		pins = append(pins, pin{
-			RextState: pickup,
+			NextState: pickup,
 			Rider:     r,
 		}, pin{
-			RextState: drop,
+			NextState: drop,
 			Rider:     r,
 		})
 

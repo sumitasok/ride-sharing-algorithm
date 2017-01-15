@@ -61,21 +61,21 @@ func TestGeneratePins(t *testing.T) {
 func TestPinListAppend(t *testing.T) {
 	assert := assert.New(t)
 
-	p1 := pin{RextState: drop, Rider: requestor{Identifier: "1", State: pickedUp, Quantity: 1}}
-	p2 := pin{RextState: drop, Rider: requestor{Identifier: "2", State: pickedUp, Quantity: 1}}
+	p1 := pin{NextState: drop, Rider: requestor{Identifier: "1", State: pickedUp, Quantity: 1}}
+	p2 := pin{NextState: drop, Rider: requestor{Identifier: "2", State: pickedUp, Quantity: 1}}
 
 	pinL := makePinList(p1, p2)
 
-	p3 := pin{RextState: drop, Rider: requestor{Identifier: "3", State: pickedUp, Quantity: 1}}
+	p3 := pin{NextState: drop, Rider: requestor{Identifier: "3", State: pickedUp, Quantity: 1}}
 	p := pinL.append(p3)
 
 	assert.Equal(3, p.count())
 }
 
 func TestGenerateCombinations(t *testing.T) {
-	p1 := pin{RextState: drop, Rider: requestor{Identifier: "1", State: pickedUp, Quantity: 1}}
-	p2 := pin{RextState: drop, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
-	p3 := pin{RextState: pickup, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
+	p1 := pin{NextState: drop, Rider: requestor{Identifier: "1", State: pickedUp, Quantity: 1}}
+	p2 := pin{NextState: drop, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
+	p3 := pin{NextState: pickup, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
 
 	pinL := makePinList(p1, p2, p3)
 
@@ -87,10 +87,10 @@ func TestGenerateCombinations(t *testing.T) {
 func TestPinListRemovePin(t *testing.T) {
 	assert := assert.New(t)
 
-	p1 := pin{RextState: drop, Rider: requestor{Identifier: "1", State: pickedUp, Quantity: 1}}
-	p2 := pin{RextState: drop, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
-	p3 := pin{RextState: pickup, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
-	p4 := pin{RextState: pickup, Rider: requestor{Identifier: "4", State: rideRequested, Quantity: 1}}
+	p1 := pin{NextState: drop, Rider: requestor{Identifier: "1", State: pickedUp, Quantity: 1}}
+	p2 := pin{NextState: drop, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
+	p3 := pin{NextState: pickup, Rider: requestor{Identifier: "2", State: rideRequested, Quantity: 1}}
+	p4 := pin{NextState: pickup, Rider: requestor{Identifier: "4", State: rideRequested, Quantity: 1}}
 
 	pinL := makePinList(p1, p2, p3, p4)
 	_pinList := pinL.remove(p4)
