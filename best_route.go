@@ -77,22 +77,22 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 	routes_calculated := []pinList{}
 
 	for combination := range generateCombinations(riderPins, riderPins.count()) {
+		pretty.Println("Routes combination::", combination.toString())
 		routes_calculated = append(routes_calculated, processEachPinWithMatrix(*vehiclePin, combination, pinsWithMetrics))
 	}
 
 	bestRouteDeviation := time.Duration(math.MaxInt64)
 	bestRoute := pinList{}
-	bestRouteIndex := 0
 	vehicleDeviation := time.Duration(math.MaxInt64)
 
 	var stepTime,reqPickUpTime,reqDropTime time.Time
 
-	for pinID, pins := range routes_calculated {
+	for _, pins := range routes_calculated {
 		routeDeviation := time.Duration(0)
 		stepTime = now
 		for _, route := range pins {
 			stepTime = stepTime.Add(route.TimeToCover)
-			fmt.Println("stepTime",stepTime, "route.State",route.NextState)
+			//fmt.Println("stepTime",stepTime, "route.State",route.NextState)
 			if route.NextState == pickup {
 				if route.Rider.Identifier == reqID {
 					reqPickUpTime = stepTime
@@ -111,21 +111,18 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 				}
 				*/
 				routeDeviation += dev
-				fmt.Println("Rider", route.Rider.Identifier,"route.Rider.DirectDropTime",route.Rider.DirectDropTime,"dev",dev, "routeDeviation", routeDeviation)
+				//fmt.Println("Rider", route.Rider.Identifier,"route.Rider.DirectDropTime",route.Rider.DirectDropTime,"dev",dev, "routeDeviation", routeDeviation)
 				if route.Rider.DirectDropTime.Sub(now) * NormalFactor >  stepTime.Sub(now) * SharingFactor{
 					break
 				}
 			}
 		}
-		fmt.Println()
 
-		fmt.Println("Now",now,"STEP TIME:::", stepTime,"VEHICLEID::", v.ID,"Route No :: ", pinID, "PINTOSTRING", pins.toString(),"Deviation::", routeDeviation.Minutes())
-		pretty.Println()
+		//fmt.Println("Now",now,"STEP TIME:::", stepTime,"VEHICLEID::", v.ID,"Route No :: ", pinID, "PINTOSTRING", pins.toString(),"Deviation::", routeDeviation.Minutes())
 
 		if routeDeviation < bestRouteDeviation {
 			bestRouteDeviation = routeDeviation
 			bestRoute = pins
-			bestRouteIndex = pinID
 			vehicleDeviation = stepTime.Sub(v.ExpectedLastDropTime)
 			/*u, _ := pins.toMapAPI()
 			open.Run(u)*/
@@ -134,7 +131,7 @@ func calculateDeviation(v vehicle, reqID string,reqPickUpPin , reqDropPin pin, n
 		}
 	}
 
-	pretty.Println("Best route index", bestRouteIndex, "Deviation::: ", bestRouteDeviation.Minutes(),"Delta Deviation:: ", vehicleDeviation.Minutes(), "BestRoute",bestRoute.toString(),"VEHICLEID::", v.ID)
+	//pretty.Println("Best route index", bestRouteIndex, "Deviation::: ", bestRouteDeviation.Minutes(),"Delta Deviation:: ", vehicleDeviation.Minutes(), "BestRoute",bestRoute.toString(),"VEHICLEID::", v.ID)
 
 
 	var errX error
